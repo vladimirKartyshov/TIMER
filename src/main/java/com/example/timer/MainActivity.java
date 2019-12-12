@@ -1,45 +1,63 @@
 package com.example.timer;
 
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.util.Log;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+    private SeekBar seekbar;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        //первый срособ для таймера
-//        final Handler handler = new Handler();
-//
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                Log.d("Runnable : ", "Two seconds are passed");
-//                handler.postDelayed(this,2000);//posttDelayed значит отослать с задержкой
-//                                                          //this означает передаем runnable
-//            }
-//        };
-//        handler.post(runnable);
+        seekbar = findViewById(R.id.seekBar);
+        textView = findViewById(R.id.textView);
 
-        //Второй способ - таймер обратного отчета
-        CountDownTimer myTimer = new CountDownTimer(10000,
-                1000) {
+        seekbar.setMax(600);
+        seekbar.setProgress(60);//изначально установили на 60
+
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onTick(long millisUntilUntilFinished) {
-                Log.d("myTimer : ",String.valueOf(millisUntilUntilFinished/1000)+
-                        "seconds left");
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+
+                int minutes = progress/60;
+                int seconds = progress - (minutes*60);
+
+                //если число на таймере будет однозначным, и чтобы не изменился интерфейс
+                String minutesString = "";
+                String secondsString = "";
+
+                if (minutes < 10){
+                    minutesString = "0" + minutes;
+                }else {
+                    minutesString = String.valueOf(minutes);
+                }
+
+                if (seconds < 10){
+                    secondsString = "0" + seconds;
+                }else {
+                    secondsString = String.valueOf(seconds);
+                }
+                //устанавливаем в textView наши значения
+                textView.setText(minutesString + ":" + secondsString);
             }
 
             @Override
-            public void onFinish() {
-                Log.d("myTimer", "Finish");
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
             }
-        };
-        myTimer.start();
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
     }
 }
