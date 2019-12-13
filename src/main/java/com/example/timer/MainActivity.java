@@ -1,9 +1,10 @@
 package com.example.timer;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -13,6 +14,9 @@ public class MainActivity extends AppCompatActivity {
 
     private SeekBar seekbar;
     private TextView textView;
+    private boolean isTimerOn;
+    private Button button;
+    private CountDownTimer countDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +27,10 @@ public class MainActivity extends AppCompatActivity {
         textView = findViewById(R.id.textView);
 
         seekbar.setMax(600);
-        seekbar.setProgress(60);//изначально установили на 60
+        seekbar.setProgress(30);//изначально установили на 30
+        isTimerOn = false;
+
+        button = findViewById(R.id.button);
 
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -47,20 +54,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void start(View view) {
 
-        CountDownTimer countDownTimer = new CountDownTimer(seekbar.getProgress() * 1000,1000){
-            @Override
-            public void onTick(long millisUntilFinished) {
+        if (!isTimerOn){
+            button.setText("Stop");
+            seekbar.setEnabled(false);//чтобы пользователь не смог двигать ползунок сам
+            isTimerOn = true;
 
-            updateTimer( millisUntilFinished);
+            CountDownTimer countDownTimer = new CountDownTimer(seekbar.getProgress() * 1000,1000){
+                @Override
+                public void onTick(long millisUntilFinished) {
 
-            }
+                    updateTimer( millisUntilFinished);
+                }
 
-            @Override
-            public void onFinish() {
-
-                Log.d("onFinish", "Finish!");
-            }
-        }.start();
+                @Override
+                public void onFinish() {
+                    MediaPlayer mediaPlayer  = MediaPlayer.create(getApplicationContext(),R.raw.bell_sound);
+                    mediaPlayer.start();
+                    resetTimer();
+                }
+            };
+        }else {
+            resetTimer();
+        }
     }
 
     private void updateTimer(long millisUntilFinished){
@@ -85,5 +100,14 @@ public class MainActivity extends AppCompatActivity {
         }
         //устанавливаем в textView наши значения
         textView.setText(minutesString + ":" + secondsString);
+    }
+
+    private void resetTimer(){
+        countDownTimer.cancel();//останавливаем таймер
+        textView.setText("00:30");
+        button.setText("Start");
+        seekbar.setEnabled(true);
+        seekbar.setProgress(30);
+        isTimerOn = false;
     }
 }
